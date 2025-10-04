@@ -252,157 +252,186 @@
     </style>
 </head>
 <body>
-<div class="profile-container">
-    <!-- Profile Header -->
-    <div class="profile-header">
-        <div class="profile-avatar">👨‍🍳</div>
-        <div class="profile-name">{{ Auth::user()->name }}</div>
-        <div class="profile-role">Restaurant Manager</div>
-    </div>
-    
+    {{-- Laravel Flash Success Message --}}
+    @if(session('success'))
+        <div class="toast show">{{ session('success') }}</div>
+    @endif
 
-    <!-- Tab Navigation -->
-    <div class="tab-navigation">
-        <button class="tab-button active" onclick="showTab('profile')">Profile</button>
-        <button class="tab-button" onclick="showTab('contact')">Contact Info</button>
-        <button class="tab-button" onclick="showTab('password')">Change Password</button>
-        <button class="tab-button" onclick="showTab('logout')">Logout</button>
-    </div>
+    {{-- Show validation errors as toast using JS --}}
+    @if($errors->any())
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                showToast("{{ addslashes($errors->first()) }}", true);
+            });
+        </script>
+    @endif
 
-    <!-- Profile Tab -->
-    <div id="profile-tab" class="tab-content active">
-        <h3>Personal Information</h3>
-        <form id="profile-form">
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">First Name</label>
-                    <input type="text" class="form-input" id="firstName" value="{{ Auth::user()->first_name }}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Last Name</label>
-                    <input type="text" class="form-input" id="lastName" value="{{ Auth::user()->last_name }}">
-                </div>
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar">👨‍🍳</div>
+            <div class="profile-name">{{ Auth::user()->name }}</div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active" onclick="showTab('profile')">Profile</button>
+            <button class="tab-button" onclick="showTab('contact')">Contact Info</button>
+            <button class="tab-button" onclick="showTab('password')">Change Password</button>
+            <button class="tab-button" onclick="showTab('logout')">Logout</button>
+        </div>
+
+        <!-- Profile Tab -->
+<div id="profile-tab" class="tab-content active">
+    <h3>Personal Information</h3>
+    <form id="profile-form" method="POST" action="{{ route('profile.update') }}">
+        @csrf
+        @method('PUT')
+
+        @if($errors->any())
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    showToast("{{ addslashes($errors->first()) }}", true);
+                });
+            </script>
+        @endif
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">First Name</label>
+                <input type="text" class="form-input" name="first_name" value="{{ old('first_name', Auth::user()->first_name) }}">
             </div>
             <div class="form-group">
-                <label class="form-label">Email Address</label>
-                <input type="email" class="form-input" id="email" value="{{ Auth::user()->email }}">
+                <label class="form-label">Last Name</label>
+                <input type="text" class="form-input" name="last_name" value="{{ old('last_name', Auth::user()->last_name) }}">
             </div>
-            <div class="form-row" style="justify-content: space-between; align-items: center;">
-    <button type="submit" class="btn btn-primary">Update Profile</button>
-    <a href="{{ route('home') }}" class="btn btn-secondary" style="background: #f1f5f9; color: #64748b;">Home</a>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-input" name="email" value="{{ old('email', Auth::user()->email) }}">
+        </div>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button type="submit" class="btn btn-primary">Update Profile</button>
+            <a href="{{ route('home') }}" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </form>
 </div>
-        </form>
-    </div>
 
-    <!-- Contact Info Tab -->
-    <div id="contact-tab" class="tab-content">
-        <h3>Contact Information</h3>
-        <form id="contact-form">
-            <div class="info-item">
-                <span class="info-label">Phone Number</span>
-                <input type="text" class="form-input" name="phone" value="{{ Auth::user()->phone }}">
-            </div>
-            <div class="info-item">
-                <span class="info-label">Work Email</span>
-                <input type="email" class="form-input" name="work_email" value="{{ Auth::user()->work_email }}">
-            </div>
-            <div class="info-item">
-                <span class="info-label">Personal Email</span>
-                <input type="email" class="form-input" name="personal_email" value="{{ Auth::user()->personal_email }}">
-            </div>
-            <div class="info-item">
-                <span class="info-label">Address</span>
-                <input type="text" class="form-input" name="address" value="{{ Auth::user()->address }}">
-            </div>
-            <div class="info-item">
-                <span class="info-label">Emergency Contact</span>
-                <input type="text" class="form-input" name="emergency_contact" value="{{ Auth::user()->emergency_contact }}">
-            </div>
-            <div style="margin-top:1rem;">
-                <button type="submit" class="btn btn-primary">Save Contact Info</button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Password Tab -->
-    <div id="password-tab" class="tab-content">
-        <h3>Change Password</h3>
-        <form id="password-form">
-            <div class="form-group">
-                <label class="form-label">Current Password</label>
-                <input type="password" class="form-input" id="currentPassword" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label">New Password</label>
-                <input type="password" class="form-input" id="newPassword" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Confirm New Password</label>
-                <input type="password" class="form-input" id="confirmPassword" required>
-            </div>
-            <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Change Password</button>
-        </form>
-    </div>
-
-    <!-- Logout Tab -->
-    <div id="logout-tab" class="tab-content">
-        <h3>Logout</h3>
-        <div class="logout-section">
-            <div class="logout-warning">
-                ⚠️ You are about to logout from your account.
-            </div>
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to logout?');">Logout Now</button>
+        <!-- Contact Info Tab -->
+        <div id="contact-tab" class="tab-content">
+            <h3>Contact Information</h3>
+            <form id="contact-form">
+                <div class="info-item">
+                    <span class="info-label">Phone Number</span>
+                    <input type="text" class="form-input" name="phone" value="{{ Auth::user()->phone }}">
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Work Email</span>
+                    <input type="email" class="form-input" name="work_email" value="{{ Auth::user()->work_email }}">
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Personal Email</span>
+                    <input type="email" class="form-input" name="personal_email" value="{{ Auth::user()->personal_email }}">
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Address</span>
+                    <input type="text" class="form-input" name="address" value="{{ Auth::user()->address }}">
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Emergency Contact</span>
+                    <input type="text" class="form-input" name="emergency_contact" value="{{ Auth::user()->emergency_contact }}">
+                </div>
+                <div style="margin-top:1rem;">
+                    <button type="submit" class="btn btn-primary">Save Contact Info</button>
+                </div>
             </form>
+        </div>
+
+        <!-- Password Tab -->
+        <div id="password-tab" class="tab-content">
+            <h3>Change Password</h3>
+            <form id="password-form">
+                <div class="form-group">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" class="form-input" id="currentPassword" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input type="password" class="form-input" id="newPassword" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm New Password</label>
+                    <input type="password" class="form-input" id="confirmPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Change Password</button>
+            </form>
+        </div>
+
+        <!-- Logout Tab -->
+        <div id="logout-tab" class="tab-content">
+            <h3>Logout</h3>
+            <div class="logout-section">
+                <div class="logout-warning">
+                    ⚠️ You are about to logout from your account.
+                </div>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to logout?');">Logout Now</button>
+                </form>
+            </div>
         </div>
     </div>
 
-</div>
+    <!-- Empty toast element for JS-triggered messages -->
+    <div id="toast" class="toast"></div>
 
-<div id="toast" class="toast"></div>
-
-<script>
-    // Tab switching
-    function showTab(tabName) {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabName + '-tab').classList.add('active');
-        event.target.classList.add('active');
-    }
-
-    // Toast notification
-    function showToast(message, isError=false) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.className = 'toast show' + (isError ? ' error' : '');
-        setTimeout(() => { toast.classList.remove('show'); }, 3000);
-    }
-
-    // Profile form
-    document.getElementById('profile-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        showToast('Profile updated!');
-    });
-
-    // Contact form
-    document.getElementById('contact-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        showToast('Contact info saved!');
-    });
-
-    // Password form
-    document.getElementById('password-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const newPass = document.getElementById('newPassword').value;
-        const confirmPass = document.getElementById('confirmPassword').value;
-        if (newPass !== confirmPass) {
-            showToast('Passwords do not match!', true);
-            return;
+    <script>
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
         }
-        showToast('Password changed!');
-        this.reset();
-    });
-</script>
+
+        // Toast notification (for JS-triggered messages)
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast' + (isError ? ' error' : '') + ' show';
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Auto-hide Laravel flash toast
+        document.addEventListener('DOMContentLoaded', function () {
+            const flashToast = document.querySelector('.toast.show:not(#toast)');
+            if (flashToast) {
+                setTimeout(() => {
+                    flashToast.classList.remove('show');
+                }, 3000);
+            }
+        });
+
+        // Contact form (client-side only)
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showToast('Contact info saved!');
+        });
+
+        // Password form validation
+        document.getElementById('password-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+            if (newPass !== confirmPass) {
+                showToast('Passwords do not match!', true);
+                return;
+            }
+            showToast('Password changed!');
+            this.reset();
+        });
+    </script>
 </body>
 </html>

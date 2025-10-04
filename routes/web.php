@@ -4,13 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\HomeController;   // ✅ Added this
 use Illuminate\Support\Facades\Auth;
 
-// Home
-Route::get('/', function () {
-    return view('home');
-});
+// Home route (only one version)
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Logout
 Route::post('/logout', function () {
     Auth::logout();
     return redirect('/');
@@ -38,11 +38,7 @@ Route::middleware(['auth'])->group(function () {
     // Update password
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('password.update');
 
-    // Upload profile photo
-    Route::post('/profile/upload', [ProfileController::class, 'uploadProfilePhoto'])->name('profile.upload');
+    // Update profile info
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
 });
-
-Route::get('/', [HomeController::class, 'index'])->name('home');
-
-
-
